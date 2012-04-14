@@ -1,0 +1,1 @@
+"cl -Iinclude devil.cpp -link lib\DevIL.lib"
