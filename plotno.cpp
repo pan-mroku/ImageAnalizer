@@ -1,6 +1,6 @@
-#include "plotno.h"
+#include "plotno.hpp"
 
-using std::cout;
+using std::cerr;
 using std::endl;
 
 Plotno::Plotno(const char* plik)
@@ -57,6 +57,19 @@ void Plotno::Zapisz(const char* plik)
 
 Plotno& Plotno::Maskuj(const ILbyte* maska, const ILuint bok)
 {
+
+  /*  const ILbyte* maska=_maska;
+  ILuint bok=_bok;
+    if(_maska==0)
+    {
+    maska={-1,0,-1,0,6,0,-1,0,-1};
+    bok=3;
+    }
+  else
+    {
+      maska=_maska;
+      }*/
+  
   Pixel* nowe=new Pixel[szerokosc*wysokosc];
 
   for(ILuint i=0;i<wysokosc*szerokosc;i++)
@@ -96,7 +109,7 @@ Plotno& Plotno::Filtruj()
 
   Pixel* nowe=new Pixel[szerokosc*wysokosc];
   for(ILuint i=0;i<wysokosc*szerokosc;i++)
-    nowe[i]=obraz[i];
+    nowe[i]=obraz[i].BW();
 
   for(ILuint i=1;i<wysokosc-1;i++)
     for(ILuint j=1;j<szerokosc-1;j++)
@@ -120,7 +133,7 @@ Plotno& Plotno::Filtruj()
         for(ILuint mj=0;mj<3;mj++)
           tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
 
-      nowe[i*szerokosc+j]=tmp;
+      nowe[i*szerokosc+j]=tmp.BW();
     }
 	
   delete[] obraz;

@@ -1,4 +1,4 @@
-#include "pixel.h"
+#include "pixel.hpp"
 
 Pixel::Pixel(const Pixel& kopia)
 {
@@ -39,6 +39,16 @@ ILubyte Pixel::B()
   if(b<0)
     return 0;
   return b;
+}
+
+ILint Pixel::Jasnosc()
+{
+  return (3*r+5*g+2*b)/10;
+}
+
+Pixel Pixel::BW()
+{
+  return Pixel(Jasnosc());
 }
 
 Pixel Pixel::operator*(const ILbyte& p)
