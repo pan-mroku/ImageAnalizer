@@ -14,12 +14,18 @@ private:
   std::vector<std::vector<ILbyte> > maska;
   ILuint szerokosc;
   ILuint wysokosc;
-  ILubyte dzielnik;
+  ILbyte dzielnik;
 public:
-  Maska();
-  /*  ~Maska();
-      Maska(const Maska& kopia);*/
-  Maska(const ILbyte* _maska, ILubyte dzielnik=1, ILuint _szerokosc=0, ILuint _wysokosc=0);
+  Maska(ILuint _szerokosc=0, ILuint _wysokosc=0);
+  Maska(const ILbyte _maska[], ILbyte dzielnik=1, ILuint _szerokosc=0, ILuint _wysokosc=0);
+
+  Maska& operator=(const ILbyte _maska[]);
+  ILuint Szerokosc();
+  ILuint Wysokosc();
+  ILbyte Dzielnik();
+  void Szerokosc(ILuint _szerokosc);
+  void Wysokosc(ILuint _wysokosc);
+  void Dzielnik(ILbyte _dzielnik);
 
   Pixel& Maskuj(const Plotno& p, ILuint x, ILuint y);
 
