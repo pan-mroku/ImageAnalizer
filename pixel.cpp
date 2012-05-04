@@ -43,12 +43,12 @@ ILubyte Pixel::B()
 
 ILint Pixel::Jasnosc()
 {
-  return (3*r+5*g+2*b)/10;
+  return (3*R()+5*G()+2*B())/10;
 }
 
-Pixel Pixel::BW()
+ILint Pixel::BW()
 {
-  return Pixel(Jasnosc());
+  return (R()+G()+B())/3;
 }
 
 Pixel Pixel::operator*(const ILbyte& p)

@@ -3,8 +3,11 @@
 using std::cerr;
 using std::endl;
 
+#define PI 3.14
+
 Plotno::Plotno()
 {
+  ilGenImages(1,&id);
   szerokosc=0;
   wysokosc=0;
   obraz=0;
@@ -12,6 +15,7 @@ Plotno::Plotno()
 
 Plotno::Plotno(const char* plik)
 {
+  ilGenImages(1,&id);
   ilLoadImage(plik);
   ILubyte* tmp=ilGetData();
   szerokosc=ilGetInteger(IL_IMAGE_WIDTH);
@@ -26,10 +30,12 @@ Plotno::Plotno(const char* plik)
 Plotno::~Plotno()
 {
   delete[] obraz;
+  ilDeleteImages(1,&id);
 }
 
 Plotno::Plotno(const Plotno& kopia)
 {
+  ilGenImages(1,&id);
   szerokosc=kopia.szerokosc;
   wysokosc=kopia.wysokosc;
   obraz=new Pixel[kopia.wysokosc*kopia.szerokosc];
@@ -40,6 +46,7 @@ Plotno::Plotno(const Plotno& kopia)
 
 Plotno& Plotno::operator=(const Plotno& kopia)
 {
+  ilGenImages(1,&id);
   szerokosc=kopia.szerokosc;
   wysokosc=kopia.wysokosc;
   obraz=new Pixel[kopia.wysokosc*kopia.szerokosc];
@@ -51,11 +58,12 @@ Plotno& Plotno::operator=(const Plotno& kopia)
 
 Plotno::Plotno(const Pixel _obraz[],ILuint _szerokosc, ILuint _wysokosc)
 {
+  ilGenImages(1,&id);
   szerokosc=_szerokosc;
   wysokosc=_wysokosc;
   obraz=new Pixel[szerokosc*wysokosc];
-  for(int j=0;j<wysokosc;j++)
-    for(int i=0;i<szerokosc;i++)
+  for(ILuint j=0;j<wysokosc;j++)
+    for(ILuint i=0;i<szerokosc;i++)
       obraz[i+j*szerokosc]=_obraz[i+j*szerokosc];
 }
 
@@ -71,22 +79,18 @@ const Pixel& Plotno::operator[](int index) const
 
 void Plotno::Zapisz(const char* plik)
 {
-  ILuint obrazek;
-  ilGenImages(1,&obrazek);
-  ilBindImage(obrazek);
+  ilBindImage(id);
 
   ILubyte* nowy=new ILubyte[3*szerokosc*wysokosc];
   for(ILuint i=0;i<wysokosc;i++)
     for(ILuint j=0;j<szerokosc;j++)
       {
-        Pixel p(obraz[i*szerokosc+j]);
-        nowy[3*(i*szerokosc+j)]=p.B();
-        nowy[3*(i*szerokosc+j)+1]=p.G();
-        nowy[3*(i*szerokosc+j)+2]=p.R();
+        nowy[3*(i*szerokosc+j)]=obraz[i*szerokosc+j].R();
+        nowy[3*(i*szerokosc+j)+1]=obraz[i*szerokosc+j].G();
+        nowy[3*(i*szerokosc+j)+2]=obraz[i*szerokosc+j].B();
       }
-  ilTexImage(szerokosc,wysokosc,1,3,IL_BGR,IL_UNSIGNED_BYTE,nowy);
+  ilTexImage(szerokosc,wysokosc,1,3,IL_RGB,IL_UNSIGNED_BYTE,nowy);
   ilSaveImage(plik);
-  ilDeleteImages(1,&obrazek);
   delete[] nowy;
 }
 
@@ -115,18 +119,18 @@ Plotno& Plotno::Maskuj(const ILbyte* maska, const ILuint bok)
 Plotno& Plotno::Filtruj()
 {
   ILbyte test[4][9]={
-	  {0,0,0,1,2,1,0,0,0}, //0 "-"
-	  {0,0,1,0,2,0,1,0,0}, //45 "\"
-	  {0,1,0,0,2,0,0,1,0}, //90 "|"
-	  {1,0,0,0,2,0,0,0,1} //135 "/"
+    {0,0,0,1,2,1,0,0,0}, //0 "-"
+    {0,0,1,0,2,0,1,0,0}, //45 "\"
+    {0,1,0,0,2,0,0,1,0}, //90 "|"
+    {1,0,0,0,2,0,0,0,1} //135 "/"
   };
   Pixel wynik[4]={0,0,0,0};
 
   ILbyte maska[4][9]={
-	  {1,2,1,0,0,0,-1,-2,-1}, //0 "-"
-	  {2,1,0,1,0,-1,0,-1,-2}, //45 "\"
-	  {-1,0,1,-2,0,-2,-1,0,1}, //90 "|"
-	  {0,1,2,-1,0,1,-2,-1,0} //135 "/"
+    {1,2,1,0,0,0,-1,-2,-1}, //0 "-"
+    {2,1,0,1,0,-1,0,-1,-2}, //45 "\"
+    {-1,0,1,-2,0,-2,-1,0,1}, //90 "|"
+    {0,1,2,-1,0,1,-2,-1,0} //135 "/"
   };
 
   Pixel* nowe=new Pixel[szerokosc*wysokosc];
@@ -135,28 +139,28 @@ Plotno& Plotno::Filtruj()
 
   for(ILuint i=1;i<wysokosc-1;i++)
     for(ILuint j=1;j<szerokosc-1;j++)
-    {
-      for(ILuint p=0;p<4;p++)
-        wynik[p]=0;
+      {
+        for(ILuint p=0;p<4;p++)
+          wynik[p]=0;
 
-      for(ILuint t=0;t<4;t++)
+        for(ILuint t=0;t<4;t++)
+          for(ILuint mi=0;mi<3;mi++)
+            for(ILuint mj=0;mj<3;mj++)
+              wynik[t]+=obraz[(i-1+mi)*szerokosc+j-1+mj]*test[t][mi*3+mj]/2;
+
+        ILuint kierunek=0;
+        for(ILuint a=0;a<4;a++)
+          if(wynik[a]>wynik[kierunek])
+            kierunek=a;
+
+        Pixel tmp=0;
+
         for(ILuint mi=0;mi<3;mi++)
           for(ILuint mj=0;mj<3;mj++)
-            wynik[t]+=obraz[(i-1+mi)*szerokosc+j-1+mj]*test[t][mi*3+mj]/2;
+            tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
 
-      ILuint kierunek=0;
-      for(ILuint a=0;a<4;a++)
-        if(wynik[a]>wynik[kierunek])
-          kierunek=a;
-
-      Pixel tmp=0;
-
-      for(ILuint mi=0;mi<3;mi++)
-        for(ILuint mj=0;mj<3;mj++)
-          tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
-
-      nowe[i*szerokosc+j]=tmp.BW();
-    }
+        nowe[i*szerokosc+j]=tmp.BW();
+      }
 	
   delete[] obraz;
   obraz=nowe;
@@ -166,25 +170,27 @@ Plotno& Plotno::Filtruj()
 
 Plotno& Plotno::Hough(Plotno* ak)
 {
-  ILuint R=floor(sqrt((float)(szerokosc*szerokosc+wysokosc*wysokosc)));
-  Pixel* akumulator=new Pixel[270*R];
+  ILuint R=floor(sqrt((double)(szerokosc*szerokosc+wysokosc*wysokosc)));
+  ILuint* akumulator=new ILuint[270*R];
+
   for(ILuint i=0;i<270*R;i++)
     akumulator[i]=0;
+
   for(ILuint j=0;j<wysokosc;j++)
     for(ILuint i=0;i<szerokosc;i++)
       {
-        if(obraz[i+j*szerokosc].BW().Jasnosc()>2)continue;
+        if(obraz[i+j*szerokosc].BW()>0)continue;
         for(ILint fi=-90;fi<180;fi++)
           {
-            float fis=fi;
-            float fic=fi;
-            float r=i*cos(fic)+j*sin(fis);
+            double fi_f=fi;
+            double r=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
             if(r<0)
               {
-                /* fis=-fis;
-                fic+=180;
-                r=i*cos(fic)+j*sin(fis);*/
-                r=-r;
+                if(fi<45)
+                  fi_f+=180;
+                else
+                  fi_f-=180;
+                r=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
               }
             akumulator[fi+90+270*(ILuint)r]+=1;
           }
@@ -199,18 +205,42 @@ Plotno& Plotno::Hough(Plotno* ak)
         }
   Pixel* nowe=new Pixel[szerokosc*wysokosc];
   for(ILuint i=0;i<szerokosc*wysokosc;i++)
-    nowe[i]=0;
+    {
+      nowe[i]=255;
+    }
 
   for(ILuint j=0;j<wysokosc;j++)
     for(ILuint i=0;i<szerokosc;i++)
-      //if(i*cos((float)fi-90)+j*sin((float)fi-90)==r||i*cos((float)fi+90)+j*sin((float)(-fi))==r)
-      if(fabs(i*cos((float)fi-90)+j*sin((float)fi-90))==r)
-        nowe[i+j*szerokosc]=255;
+      {
+        double fi_f=fi-90;
+        ILint r_=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
+        if(r_<0)
+          {
+            if(fi_f<45)
+              fi_f+=180;
+            else
+              fi_f-=180;
+            r_=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
+          }
+        if(floor(r_)==r)
+          {
+
+            nowe[i+j*szerokosc]=0;
+          }
+      }
   
   delete[] obraz;
   obraz=nowe;
   if(ak)
-    *ak=Plotno(akumulator,270,R);
+    {
+      delete [] ak->obraz;
+      ak->obraz=new Pixel[270*R];
+      for(ILuint i=0;i<R*270;i++)
+        ak->obraz[i]=akumulator[i];
+      ak->wysokosc=R;
+      ak->szerokosc=270;
+    }
+  delete [] akumulator;
   return *this;
 }
 

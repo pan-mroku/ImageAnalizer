@@ -1,6 +1,8 @@
 analizer
+maskatest
 *.o
 *.bmp
 *.png
+*.PNG
 *.jpg
 *.jpeg
