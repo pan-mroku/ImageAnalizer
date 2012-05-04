@@ -21,13 +21,15 @@ int main(int argc,char** argv)
   Plotno obrazek(plik.c_str());
   
   //obrazek.Maskuj(maska,3);
-  obrazek.Filtruj();
+  //obrazek.Filtruj();
+   Plotno aku;
+   obrazek.Hough(&aku);
 
   if(argc==3)
 	  plik=argv[2];
   else
 	  plik="asd.png";
-
+  aku.Zapisz(("aku_"+plik).c_str());
   obrazek.Zapisz(plik.c_str());
   ilShutDown();
   return 1;

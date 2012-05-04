@@ -30,9 +30,11 @@ public:
   Pixel operator+(const Pixel& p);
   Pixel operator-(const Pixel& p);
   bool operator>(const Pixel& p);
+  bool operator<(const Pixel& p);
   friend std::ostream& operator<<(std::ostream& out,const Pixel& p);
   Pixel& operator>>=(const int i);
   Pixel& operator+=(const Pixel& p);
+  Pixel& operator+=(const float f);
 };
 
 #endif

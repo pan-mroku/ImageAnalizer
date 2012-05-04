@@ -1,1 +1,1 @@
-"cl -Iinclude devil.cpp -link lib\DevIL.lib"
+cl -Iinclude /EHsc analizer.cpp plotno.cpp pixel.cpp -link lib\DevIL.lib

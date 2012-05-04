@@ -98,6 +98,13 @@ bool Pixel::operator>(const Pixel& p)
 return false;
 }
 
+bool Pixel::operator<(const Pixel& p)
+{
+ if(std::abs(3*r+5*g+2*b)<std::abs(3*p.r+5*p.g+2*p.b))
+  return true;
+return false;
+}
+
 std::ostream& operator<<(std::ostream& out,const Pixel& p)
 {
   return out<<(int)p.r<<":"<<(int)p.g<<":"<<(int)p.b;
@@ -116,5 +123,14 @@ Pixel& Pixel::operator+=(const Pixel& p)
   r+=p.r;
   g+=p.g;
   b+=p.b;
+  return *this;
+}
+
+
+Pixel& Pixel::operator+=(const float f)
+{
+  r+=int(f);
+  g+=int(f);
+  b+=int(f);
   return *this;
 }
