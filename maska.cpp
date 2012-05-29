@@ -70,7 +70,7 @@ void Maska::Dzielnik(ILbyte _dzielnik)
   dzielnik=_dzielnik;
 }
 
-Pixel Maska::Maskuj(const Plotno& p, ILuint x, ILuint y)
+Pixel Maska::Maskuj(const Plotno& p, ILuint x, ILuint y) const
 {
   Pixel tmp=0;
   for(ILuint i=0;i<szerokosc;i++)

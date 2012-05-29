@@ -56,40 +56,18 @@ void Plotno::Zapisz(const char* plik)
   delete[] nowy;
 }
 
-Plotno& Plotno::Maskuj(const ILbyte* maska, const ILuint bok)
+Plotno& Plotno::Maskuj(const Maska& maska)
 {
 
-  /*  const ILbyte* maska=_maska;
-  ILuint bok=_bok;
-    if(_maska==0)
-    {
-    maska={-1,0,-1,0,6,0,-1,0,-1};
-    bok=3;
-    }
-  else
-    {
-      maska=_maska;
-      }*/
-  Maska _maska(maska,2,bok,bok);
-  
   Pixel* nowe=new Pixel[szerokosc*wysokosc];
 
   for(ILuint i=0;i<wysokosc*szerokosc;i++)
     nowe[i]=obraz[i];
   
-  /*  for(ILuint i=1;i<wysokosc-1;i++)
-    for(ILuint j=1;j<szerokosc-1;j++)
-      {
-        Pixel tmp=0;
-        for(ILuint mi=0;mi<bok;mi++)
-          for(ILuint mj=0;mj<bok;mj++)
-            tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[mi*bok+mj]/2;
-        nowe[i*szerokosc+j]=tmp;
-        }*/
   for(ILuint i=0;i<wysokosc;i++)
     for(ILuint j=0;j<szerokosc;j++)
       {
-        nowe[i*szerokosc+j]=_maska.Maskuj(*this,j,i);
+        nowe[i*szerokosc+j]=maska.Maskuj(*this,j,i);
         }
   delete[] obraz;
   obraz=nowe;

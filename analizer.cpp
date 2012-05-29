@@ -7,7 +7,8 @@ using namespace std;
 
 int main(int argc,char** argv)
 {
-  ILbyte maska[9]={-1,0,-1,0,6,0,-1,0,-1};
+  ILbyte maska_tab[9]={-1,0,-1,0,6,0,-1,0,-1};
+  Maska maska(maska_tab,2,3,3);
   string plik="lena.bmp";
 
   if(argc>1)
@@ -20,7 +21,7 @@ int main(int argc,char** argv)
 
   Plotno obrazek(plik.c_str());
   
-  obrazek.Maskuj(maska,3);
+  obrazek.Maskuj(maska);
   //obrazek.Filtruj();
 
   if(argc==3)

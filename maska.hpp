@@ -25,7 +25,7 @@ public:
   void Wysokosc(ILuint _wysokosc);
   void Dzielnik(ILbyte _dzielnik);
 
-  Pixel Maskuj(const Plotno& p, ILuint x, ILuint y);
+  Pixel Maskuj(const Plotno& p, ILuint x, ILuint y) const;
 
   friend std::ostream& operator<<(std::ostream& out, const Maska& m);
 };
