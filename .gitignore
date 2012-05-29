@@ -1,4 +1,5 @@
 analizer
+*test
 *.o
 *.bmp
 *.png

@@ -1,4 +1,5 @@
 #include "plotno.hpp"
+#include "maska.hpp"
 
 using std::cerr;
 using std::endl;
@@ -90,23 +91,18 @@ void Plotno::Zapisz(const char* plik)
   delete[] nowy;
 }
 
-Plotno& Plotno::Maskuj(const ILbyte* maska, const ILuint bok)
+Plotno& Plotno::Maskuj(const Maska& maska)
 {
   Pixel* nowe=new Pixel[szerokosc*wysokosc];
 
   for(ILuint i=0;i<wysokosc*szerokosc;i++)
     nowe[i]=obraz[i];
   
-  for(ILuint i=1;i<wysokosc-1;i++)
-    for(ILuint j=1;j<szerokosc-1;j++)
+  for(ILuint i=0;i<wysokosc;i++)
+    for(ILuint j=0;j<szerokosc;j++)
       {
-        Pixel tmp=0;
-        for(ILuint mi=0;mi<bok;mi++)
-          for(ILuint mj=0;mj<bok;mj++)
-            tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[mi*bok+mj]/2;
-        nowe[i*szerokosc+j]=tmp;
-      }
-  
+        nowe[i*szerokosc+j]=maska.Maskuj(*this,j,i);
+        }
   delete[] obraz;
   obraz=nowe;
   return *this;

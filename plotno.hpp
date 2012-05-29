@@ -6,7 +6,8 @@
 #include <vector>
 #include <cmath>
 #include "pixel.hpp"
-#include "maska.hpp"
+
+class Maska;
 
 class Plotno
 {
@@ -24,7 +25,7 @@ public:
   Pixel& operator[](int index);
   const Pixel& operator[](int index) const;
   void Zapisz(const char* plik);
-  Plotno& Maskuj(const ILbyte* _maska=0, const ILuint _bok=3);
+  Plotno& Maskuj(const Maska& maska);
   Plotno& Filtruj();
   Plotno& Hough(Plotno* ak=0);
   friend std::ostream& operator<<(std::ostream& out, const Plotno& p);

@@ -1,13 +1,14 @@
 #include <IL/il.h>
 #include <iostream>
 #include <cmath>
-#include "plotno.hpp"
+#include "maska.hpp"
 
 using namespace std;
 
 int main(int argc,char** argv)
 {
-  ILbyte maska[9]={-1,0,-1,0,6,0,-1,0,-1};
+  ILbyte maska_tab[9]={-1,0,-1,0,6,0,-1,0,-1};
+  Maska maska(maska_tab,2,3,3);
   string plik="lena.bmp";
 
   if(argc>1)
@@ -20,16 +21,13 @@ int main(int argc,char** argv)
 
   Plotno obrazek(plik.c_str());
   
-  //obrazek.Maskuj(maska,3);
-  //obrazek.Filtruj();
-   Plotno aku;
-   obrazek.Hough(&aku);
+  obrazek.Maskuj(maska);
 
   if(argc==3)
 	  plik=argv[2];
   else
-	  plik="asd.png";
-  aku.Zapisz(("aku_"+plik).c_str());
+    plik.insert(0,"maskuj_");
+
   obrazek.Zapisz(plik.c_str());
   ilShutDown();
   return 1;
