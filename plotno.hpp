@@ -5,7 +5,8 @@
 #include <iostream>
 #include <vector>
 #include "pixel.hpp"
-#include "maska.hpp"
+
+class Maska;
 
 class Plotno
 {

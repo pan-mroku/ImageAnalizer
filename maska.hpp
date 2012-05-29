@@ -4,9 +4,7 @@
 #include <IL/il.h>
 #include <iostream>
 #include <vector>
-#include "pixel.hpp"
-
-class Plotno;
+#include "plotno.hpp"
 
 class Maska
 {
@@ -27,7 +25,7 @@ public:
   void Wysokosc(ILuint _wysokosc);
   void Dzielnik(ILbyte _dzielnik);
 
-  Pixel& Maskuj(const Plotno& p, ILuint x, ILuint y);
+  Pixel Maskuj(const Plotno& p, ILuint x, ILuint y);
 
   friend std::ostream& operator<<(std::ostream& out, const Maska& m);
 };

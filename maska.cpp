@@ -6,10 +6,15 @@ using std::endl;
 
 Maska::Maska(ILuint _szerokosc, ILuint _wysokosc)
 {
-  maska=vector<vector<ILbyte> >();
   szerokosc=_szerokosc;
   wysokosc=_wysokosc;
   dzielnik=1;
+  for(ILuint i=0;i<szerokosc;i++)
+    {
+      maska.push_back(vector<ILbyte>());
+      for(ILuint j=0;j<wysokosc;j++)
+        maska[i].push_back(i==szerokosc/2 && j==wysokosc/2);
+    }
 }
 
 Maska::Maska(const ILbyte* _maska, ILbyte _dzielnik, ILuint _szerokosc, ILuint _wysokosc)
@@ -28,13 +33,9 @@ Maska::Maska(const ILbyte* _maska, ILbyte _dzielnik, ILuint _szerokosc, ILuint _
 
 Maska& Maska::operator=(const ILbyte _maska[])
 {
-  maska.clear();
   for(ILuint i=0;i<szerokosc;i++)
-    {
-      maska.push_back(vector<ILbyte>());
-      for(ILuint j=0;j<wysokosc;j++)
-        maska[i].push_back(_maska[i+j*szerokosc]);
-    }
+    for(ILuint j=0;j<wysokosc;j++)
+      maska[i][j]=_maska[i+j*szerokosc];
   return *this;
 }
 
@@ -69,6 +70,21 @@ void Maska::Dzielnik(ILbyte _dzielnik)
   dzielnik=_dzielnik;
 }
 
+Pixel Maska::Maskuj(const Plotno& p, ILuint x, ILuint y)
+{
+  Pixel tmp=0;
+  for(ILuint i=0;i<szerokosc;i++)
+    for(ILuint j=0;j<wysokosc;j++)
+      {
+        ILuint pixel_x=x-szerokosc/2+i;
+        ILuint pixel_y=y-wysokosc/2+j;
+        if(pixel_x>=p.szerokosc||pixel_y>=p.wysokosc||pixel_x<0||pixel_y<0)
+          continue;
+        tmp+=p.obraz[pixel_y*p.szerokosc+pixel_x]*maska[i][j]/dzielnik;
+      }
+  return tmp;
+}
+
 std::ostream& operator<<(std::ostream& out, const Maska& m)
 {
   out<<(int)m.szerokosc<<"x"<<(int)m.wysokosc;
@@ -77,5 +93,6 @@ std::ostream& operator<<(std::ostream& out, const Maska& m)
       out<<endl;
       for(ILuint i=0;i<m.szerokosc;out<<(int)m.maska[i++][j]<<" ");
     }
+  out<<(int)m.dzielnik;
   return out;
 }

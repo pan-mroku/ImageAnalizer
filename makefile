@@ -1,9 +1,10 @@
-FLAGS=-lIL -Wall
+FLAGS=-Wall
+LIBS=-lIL
 all:	analizer
 analizer: program.o plotno.o pixel.o maska.o
-	g++ $(FLAGS) program.o plotno.o pixel.o maska.o -o analizer
+	g++ $(FLAGS) $(LIBS) program.o plotno.o pixel.o maska.o -o analizer
 maskatest:maskatest.cpp maska.o pixel.o
-	g++ $(FLAGS) maskatest.cpp maska.o pixel.o -o maskatest
+	g++ $(FLAGS) $(LIBS) maskatest.cpp maska.o pixel.o -o maskatest
 program.o: analizer.cpp
 	g++ -c $(FLAGS) analizer.cpp -o program.o
 plotno.o:plotno.cpp plotno.hpp
@@ -15,3 +16,5 @@ maska.o:maska.cpp maska.hpp
 clean:	
 	rm -f analizer
 	rm -f *.o
+	rm -f *.obj
+	rm -f *.exe

@@ -1,7 +1,7 @@
 #include <IL/il.h>
 #include <iostream>
 #include <cmath>
-#include "plotno.hpp"
+#include "maska.hpp"
 
 using namespace std;
 
@@ -20,13 +20,13 @@ int main(int argc,char** argv)
 
   Plotno obrazek(plik.c_str());
   
-  //obrazek.Maskuj(maska,3);
-  obrazek.Filtruj();
+  obrazek.Maskuj(maska,3);
+  //obrazek.Filtruj();
 
   if(argc==3)
 	  plik=argv[2];
   else
-	  plik="asd.png";
+    plik.insert(0,"maskuj_");
 
   obrazek.Zapisz(plik.c_str());
   ilShutDown();
