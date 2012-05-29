@@ -12,6 +12,7 @@ class Maska;
 class Plotno
 {
 private:
+  ILuint id;
   Pixel* obraz;
   ILuint wysokosc;
   ILuint szerokosc;

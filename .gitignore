@@ -3,5 +3,8 @@ analizer
 *.o
 *.bmp
 *.png
+*.PNG
 *.jpg
 *.jpeg
+*.exe
+*.obj
