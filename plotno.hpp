@@ -4,7 +4,7 @@
 #include <IL/il.h>
 #include <iostream>
 #include <vector>
-#include <cmath>
+//#include <cmath>
 #include "pixel.hpp"
 
 class Maska;
@@ -27,8 +27,11 @@ public:
   const Pixel& operator[](int index) const;
   void Zapisz(const char* plik);
   Plotno& Maskuj(const Maska& maska);
+  Plotno& Wyostrz();
+  Plotno& Rozmyj();
   Plotno& Filtruj();
   Plotno& Hough(Plotno* ak=0);
+  Plotno& Lindeberg();
   friend std::ostream& operator<<(std::ostream& out, const Plotno& p);
   friend class Maska;
 };

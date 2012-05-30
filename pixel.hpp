@@ -4,6 +4,7 @@
 #include<IL/il.h>
 #include<ostream>
 #include<cmath>
+#include "utils.hpp"
 
 class Pixel
 {

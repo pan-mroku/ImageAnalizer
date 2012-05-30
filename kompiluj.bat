@@ -1,1 +1,1 @@
-cl -Iinclude analizer.cpp pixel.cpp maska.cpp plotno.cpp -EHsc -link lib\DevIL.lib
+cl -Iinclude analizer.cpp utils.cpp pixel.cpp maska.cpp plotno.cpp -EHsc -link lib\DevIL.lib

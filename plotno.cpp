@@ -4,8 +4,6 @@
 using std::cerr;
 using std::endl;
 
-#define PI 3.14
-
 Plotno::Plotno()
 {
   ilGenImages(1,&id);
@@ -112,6 +110,22 @@ Plotno& Plotno::Maskuj(const Maska& maska)
   return *this;
 }
 
+Plotno& Plotno::Wyostrz()
+{
+  ILbyte maska_tab[9]={-1,0,-1,0,6,0,-1,0,-1};
+  Maska maska(maska_tab,2,3,3);
+  Maskuj(maska);
+  return *this;
+}
+
+Plotno& Plotno::Rozmyj()
+{
+  ILbyte cl_znow_nie_ogarnia[]={1,1,1,1,1,1,1,1,1};
+  Maska maska(cl_znow_nie_ogarnia,9,3,3);
+  Maskuj(maska);
+  return *this;
+}
+
 Plotno& Plotno::Filtruj()
 {
   ILbyte test[4][9]={
@@ -153,7 +167,7 @@ Plotno& Plotno::Filtruj()
 
         for(ILuint mi=0;mi<3;mi++)
           for(ILuint mj=0;mj<3;mj++)
-            tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
+tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
 
         nowe[i*szerokosc+j]=tmp.BW();
       }
@@ -218,7 +232,7 @@ Plotno& Plotno::Hough(Plotno* ak)
               fi_f-=180;
             r_=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
           }
-        if(floor(r_)==r)
+        if(floor((float)r_)==r)
           {
 
             nowe[i+j*szerokosc]=0;
@@ -237,6 +251,26 @@ Plotno& Plotno::Hough(Plotno* ak)
       ak->szerokosc=270;
     }
   delete [] akumulator;
+  return *this;
+}
+
+Plotno& Plotno::Lindeberg()
+{
+  ILbyte xxb[]={1,-2,1};
+  Maska xx(xxb,1,3,1);
+  Maska yy(xxb,1,1,3);
+  ILbyte xyb[]={1,0,-1,0,0,0,-1,0,1};
+  Maska xy(xyb,4,3,3);
+
+  ILbyte t[9];
+  for(ILint x=-1;x<2;x++)
+    for(ILint y=-1;y<2;y++)
+      t[(y+1)*3+x+1]=10*Gauss(x,y,0);
+  Maska test(t,10*PI*2*0,3,3);
+  cerr<<test<<endl;
+
+  Maskuj(test);
+  
   return *this;
 }
 

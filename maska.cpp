@@ -17,9 +17,11 @@ Maska::Maska(ILuint _szerokosc, ILuint _wysokosc)
     }
 }
 
-Maska::Maska(const ILbyte* _maska, ILbyte _dzielnik, ILuint _szerokosc, ILuint _wysokosc)
+Maska::Maska(const ILbyte* _maska, ILuint _dzielnik, ILuint _szerokosc, ILuint _wysokosc)
 {
   dzielnik=_dzielnik;
+  if(_dzielnik==0)
+    dzielnik=1;
   szerokosc=_szerokosc;
   wysokosc=_wysokosc;
 
@@ -39,6 +41,14 @@ Maska& Maska::operator=(const ILbyte _maska[])
   return *this;
 }
 
+Maska& Maska::Gaussowska()
+{
+  for(ILint x=0;x<szerokosc;x++)
+    for(ILint y=0;y<wysokosc;y++)
+      maska[x][y]=10*Gauss(x+szerokosc/2,y+wysokosc/2,1);
+  dzielnik=2*PI*10;
+  return *this;
+}
 
 ILuint Maska::Szerokosc()
 {
@@ -50,7 +60,7 @@ ILuint Maska::Wysokosc()
   return wysokosc;
 }
 
-ILbyte Maska::Dzielnik()
+ILuint Maska::Dzielnik()
 {
   return dzielnik;
 }
@@ -65,7 +75,7 @@ void Maska::Wysokosc(ILuint _wysokosc)
   wysokosc=_wysokosc;
 }
 
-void Maska::Dzielnik(ILbyte _dzielnik)
+void Maska::Dzielnik(ILuint _dzielnik)
 {
   dzielnik=_dzielnik;
 }
@@ -91,7 +101,8 @@ std::ostream& operator<<(std::ostream& out, const Maska& m)
   for(ILuint j=0;j<m.wysokosc;j++)
     {
       out<<endl;
-      for(ILuint i=0;i<m.szerokosc;out<<(int)m.maska[i++][j]<<" ");
+      for(ILuint i=0;i<m.szerokosc;out<<(int)m.maska[i++][j]<<" ")
+        out.width(4);
     }
   out<<(int)m.dzielnik;
   return out;

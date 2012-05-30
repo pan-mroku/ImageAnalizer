@@ -1,9 +1,2 @@
-@echo off
-if [%pendrive%]==[] (
-	set pendrive=1
-	set path=%path%;%cd:~0,2%\home\MinGW\bin;%cd:~0,2%\home\git\bin
-) 
-@echo on
+call %cd:~0,2%\MinGW.bat
 mingw32-make %*
-mv analizer analizer.exe
-pause
