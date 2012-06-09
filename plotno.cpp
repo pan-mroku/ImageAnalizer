@@ -1,5 +1,6 @@
 #include "plotno.hpp"
 #include "maska.hpp"
+#include "maski_rozne.hpp"
 
 using std::cerr;
 using std::endl;
@@ -23,7 +24,21 @@ Plotno::Plotno(const char* plik)
   obraz=new Pixel[wysokosc*szerokosc];
   for(ILuint i=0;i<wysokosc;i++)
     for(ILuint j=0;j<szerokosc;j++)
-      obraz[i*szerokosc+j]=tmp[3*(i*szerokosc+j)];
+      {
+        ILuint w=i*szerokosc+j;
+        obraz[w]=tmp[3*w];
+      }
+}
+
+Plotno::Plotno(ILuint _szerokosc, ILuint _wysokosc)
+{
+  ilGenImages(1,&id);
+  szerokosc=_szerokosc;
+  wysokosc=_wysokosc;
+  obraz=new Pixel[wysokosc*szerokosc];
+  for(ILuint i=0;i<wysokosc;i++)
+    for(ILuint j=0;j<szerokosc;j++)
+      obraz[i*szerokosc+j]=0;
 }
 
 Plotno::~Plotno()
@@ -34,24 +49,22 @@ Plotno::~Plotno()
 
 Plotno::Plotno(const Plotno& kopia)
 {
-  ilGenImages(1,&id);
-  szerokosc=kopia.szerokosc;
-  wysokosc=kopia.wysokosc;
-  obraz=new Pixel[kopia.wysokosc*kopia.szerokosc];
-  for(ILuint i=0;i<kopia.wysokosc;i++)
-    for(ILuint j=0;j<kopia.szerokosc;j++)
-      obraz[i*szerokosc+j]=kopia[i*szerokosc+j];
+  *this=kopia;
 }
 
 Plotno& Plotno::operator=(const Plotno& kopia)
 {
   ilGenImages(1,&id);
+
   szerokosc=kopia.szerokosc;
   wysokosc=kopia.wysokosc;
+
   obraz=new Pixel[kopia.wysokosc*kopia.szerokosc];
+
   for(ILuint i=0;i<kopia.wysokosc;i++)
     for(ILuint j=0;j<kopia.szerokosc;j++)
       obraz[i*szerokosc+j]=kopia[i*szerokosc+j];
+
   return *this;
 }
 
@@ -81,54 +94,73 @@ void Plotno::Zapisz(const char* plik)
   ilBindImage(id);
 
   ILubyte* nowy=new ILubyte[3*szerokosc*wysokosc];
-  for(ILuint i=0;i<wysokosc;i++)
-    for(ILuint j=0;j<szerokosc;j++)
+
+  for(ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
       {
-        nowy[3*(i*szerokosc+j)]=obraz[i*szerokosc+j].R();
-        nowy[3*(i*szerokosc+j)+1]=obraz[i*szerokosc+j].G();
-        nowy[3*(i*szerokosc+j)+2]=obraz[i*szerokosc+j].B();
+        ILuint index_nowy=3*(y*szerokosc+x);
+        ILuint index_obraz=y*szerokosc+x;
+        nowy[index_nowy]=obraz[index_obraz].R();
+        nowy[index_nowy+1]=obraz[index_obraz].G();
+        nowy[index_nowy+2]=obraz[index_obraz].B();
       }
   ilTexImage(szerokosc,wysokosc,1,3,IL_RGB,IL_UNSIGNED_BYTE,nowy);
   ilSaveImage(plik);
   delete[] nowy;
 }
 
-Plotno& Plotno::Maskuj(const Maska& maska)
+ILuint Plotno::Wysokosc() const
 {
-  Pixel* nowe=new Pixel[szerokosc*wysokosc];
+  return wysokosc;
+}
 
-  for(ILuint i=0;i<wysokosc*szerokosc;i++)
-    nowe[i]=obraz[i];
+ILuint Plotno::Szerokosc() const
+{
+  return szerokosc;
+}
+
+Plotno Plotno::Splot(const Maska& maska)
+{
+  Plotno nowe=*this;
   
   for(ILuint i=0;i<wysokosc;i++)
     for(ILuint j=0;j<szerokosc;j++)
       {
-        nowe[i*szerokosc+j]=maska.Maskuj(*this,j,i);
-        }
-  delete[] obraz;
-  obraz=nowe;
-  return *this;
+        nowe[i*szerokosc+j]=maska.Splot(*this,j,i);
+      }
+
+  return nowe;
 }
 
-Plotno& Plotno::Wyostrz()
+Plotno Plotno::BW()
 {
-  ILbyte maska_tab[9]={-1,0,-1,0,6,0,-1,0,-1};
-  Maska maska(maska_tab,2,3,3);
-  Maskuj(maska);
-  return *this;
+  Plotno wynik(*this);
+  for(ILuint i=0;i<szerokosc*wysokosc;i++)
+    wynik.obraz[i]=wynik.obraz[i].BW();
+  return wynik;
 }
 
-Plotno& Plotno::Rozmyj()
+Plotno Plotno::Prewitt()
 {
-  ILbyte cl_znow_nie_ogarnia[]={1,1,1,1,1,1,1,1,1};
-  Maska maska(cl_znow_nie_ogarnia,9,3,3);
-  Maskuj(maska);
-  return *this;
+  double maska_tab[9]={-1,-1,-1,-1,8,-1,-1,-1,-1};
+  Maska maska(maska_tab,3,3,1);
+  return BW().Splot(maska);
 }
 
-Plotno& Plotno::Filtruj()
+Plotno Plotno::Rozmyj(ILuint _ile_razy)
 {
-  ILbyte test[4][9]={
+  double cl_znow_nie_ogarnia[]={1,1,1,1,1,1,1,1,1};
+  Maska maska(cl_znow_nie_ogarnia,3,3,9);
+  Plotno wynik=*this;
+  for(ILuint i=0;i<_ile_razy;i++)
+    wynik=wynik.Splot(maska);
+  return wynik;
+}
+
+Plotno Plotno::Filtruj()
+{
+  return *this; //@FIXME: przerobić na maski
+  /*  ILbyte test[4][9]={
     {0,0,0,1,2,1,0,0,0}, //0 "-"
     {0,0,1,0,2,0,1,0,0}, //45 "\"
     {0,1,0,0,2,0,0,1,0}, //90 "|"
@@ -143,11 +175,9 @@ Plotno& Plotno::Filtruj()
     {0,1,2,-1,0,1,-2,-1,0} //135 "/"
   };
 
-  Pixel* nowe=new Pixel[szerokosc*wysokosc];
-  for(ILuint i=0;i<wysokosc*szerokosc;i++)
-    nowe[i]=obraz[i].BW();
+  Plotno nowe(*this);
 
-  for(ILuint i=1;i<wysokosc-1;i++)
+    for(ILuint i=1;i<wysokosc-1;i++)
     for(ILuint j=1;j<szerokosc-1;j++)
       {
         for(ILuint p=0;p<4;p++)
@@ -167,18 +197,16 @@ Plotno& Plotno::Filtruj()
 
         for(ILuint mi=0;mi<3;mi++)
           for(ILuint mj=0;mj<3;mj++)
-tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
+            tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
 
         nowe[i*szerokosc+j]=tmp.BW();
       }
+  cerr<<"tu"<<endl;
 	
-  delete[] obraz;
-  obraz=nowe;
-
-  return *this;
+  return nowe;*/
 }
 
-Plotno& Plotno::Hough(Plotno* ak)
+Plotno Plotno::Hough(Plotno* ak)
 {
   ILuint R=floor(sqrt((double)(szerokosc*szerokosc+wysokosc*wysokosc)));
   ILuint* akumulator=new ILuint[270*R];
@@ -213,7 +241,7 @@ Plotno& Plotno::Hough(Plotno* ak)
           fi=i;
           r=j;
         }
-  Pixel* nowe=new Pixel[szerokosc*wysokosc];
+  Plotno nowe=*this;
   for(ILuint i=0;i<szerokosc*wysokosc;i++)
     {
       nowe[i]=255;
@@ -239,8 +267,6 @@ Plotno& Plotno::Hough(Plotno* ak)
           }
       }
   
-  delete[] obraz;
-  obraz=nowe;
   if(ak)
     {
       delete [] ak->obraz;
@@ -251,27 +277,50 @@ Plotno& Plotno::Hough(Plotno* ak)
       ak->szerokosc=270;
     }
   delete [] akumulator;
-  return *this;
+  return nowe;
 }
 
-Plotno& Plotno::Lindeberg()
+Plotno Plotno::Lindeberg()
 {
-  ILbyte xxb[]={1,-2,1};
-  Maska xx(xxb,1,3,1);
-  Maska yy(xxb,1,1,3);
-  ILbyte xyb[]={1,0,-1,0,0,0,-1,0,1};
-  Maska xy(xyb,4,3,3);
+  MaskaX mx;
+  MaskaY my;
 
-  ILbyte t[9];
-  for(ILint x=-1;x<2;x++)
-    for(ILint y=-1;y<2;y++)
-      t[(y+1)*3+x+1]=10*Gauss(x,y,0);
-  Maska test(t,10*PI*2*0,3,3);
-  cerr<<test<<endl;
+  MaskaXY mxy;
+  MaskaXX mxx;
+  MaskaYY myy;
 
-  Maskuj(test);
+  MaskaXXX mxxx;
+  MaskaXXY mxxy;
+  MaskaXYY mxyy;
+  MaskaYYY myyy;
+
+  Plotno rozmycie=BW().Rozmyj(1);
+
+  Plotno wynik(szerokosc,wysokosc);
   
-  return *this;
+  for(ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      {
+        
+        ILint Lx=mx.Splot(rozmycie,x,y);
+        ILint Ly=my.Splot(rozmycie,x,y);
+
+        ILint Lxx=mxx.Splot(rozmycie,x,y);
+        ILint Lxy=mxy.Splot(rozmycie,x,y);
+        ILint Lyy=myy.Splot(rozmycie,x,y);
+        
+        ILint Lxxx=mxxx.Splot(rozmycie,x,y);
+        ILint Lxxy=mxxy.Splot(rozmycie,x,y);
+        ILint Lxyy=mxyy.Splot(rozmycie,x,y);
+        ILint Lyyy=myyy.Splot(rozmycie,x,y);
+
+        ILint I=Lx*Lx*Lxx+2*Lx*Ly*Lxy+Ly*Ly*Lyy;
+
+        if(I==0)
+          if((Lx*Lx*Lx*Lxxx+3*Lx*Lx*Ly*Lxxy+3*Lx*Ly*Ly*Lxyy+Ly*Ly*Ly*Lyyy)<0)
+            wynik.obraz[y*szerokosc+x]=255;
+      }
+  return wynik;
 }
 
 std::ostream& operator<<(std::ostream& out, const Plotno& p)

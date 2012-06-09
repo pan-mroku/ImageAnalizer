@@ -1,10 +1,22 @@
 #include "pixel.hpp"
 
+#include<iostream>
+using std::cerr;
+using std::endl;
+
 Pixel::Pixel(const Pixel& kopia)
 {
   b=kopia.b;
   g=kopia.g;
   r=kopia.r;
+}
+
+Pixel& Pixel::operator=(const Pixel& p)
+{
+  b=p.b;
+  g=p.g;
+  r=p.r;
+  return *this;
 }
 
 Pixel::Pixel(const ILubyte& trojka)
@@ -51,22 +63,27 @@ ILint Pixel::BW()
   return (R()+G()+B())/3;
 }
 
-Pixel Pixel::operator*(const ILbyte& p)
+Pixel::operator ILint()
+{
+  return (r+g+b)/3;
+}
+
+Pixel Pixel::operator*(const double& p)
 {
   return Pixel(r*p,g*p,b*p);
 }
 
-Pixel Pixel::operator/(const ILbyte& p)
+Pixel Pixel::operator/(const double& p)
 {
   return Pixel(r/p,g/p,b/p);
 }
 
-Pixel Pixel::operator+(const ILbyte& p)
+Pixel Pixel::operator+(const double& p)
 {
   return Pixel(r+p,g+p,b+p);
 }
 
-Pixel Pixel::operator-(const ILbyte& p)
+Pixel Pixel::operator-(const double& p)
 {
   return Pixel(r-p,g-p,b-p);
 }
@@ -127,7 +144,7 @@ Pixel& Pixel::operator+=(const Pixel& p)
 }
 
 
-Pixel& Pixel::operator+=(const float f)
+Pixel& Pixel::operator+=(const double f)
 {
   r+=int(f);
   g+=int(f);

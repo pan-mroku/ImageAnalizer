@@ -1,7 +1,7 @@
 #include <IL/il.h>
 #include <iostream>
 #include <cmath>
-#include "maska.hpp"
+#include "maski_rozne.hpp"
 
 using namespace std;
 
@@ -21,14 +21,13 @@ int main(int argc,char** argv)
 
   Plotno obrazek(plik.c_str());
   
-  obrazek.Lindeberg();
-
   if(argc==3)
 	  plik=argv[2];
   else
     plik.insert(plik.find_last_of("."),"_");
 
-  obrazek.Zapisz(plik.c_str());
+  obrazek.Lindeberg().Zapisz(plik.c_str());
+  //obrazek.Rozmyj().Prewitt().Zapisz(plik.c_str());
   ilShutDown();
-  return 1;
+  return 0;
 }
