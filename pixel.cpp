@@ -26,7 +26,7 @@ Pixel::Pixel(const ILubyte& trojka)
   r=*(&trojka+2);
 }
 
-ILubyte Pixel::R()
+ILubyte Pixel::R() const
 {
   if(r>255)
     return 255;
@@ -35,7 +35,7 @@ ILubyte Pixel::R()
   return r;
 }
 
-ILubyte Pixel::G()
+ILubyte Pixel::G() const
 {
   if(g>255)
     return 255;
@@ -44,7 +44,7 @@ ILubyte Pixel::G()
   return g;
 }
 
-ILubyte Pixel::B()
+ILubyte Pixel::B() const
 {
   if(b>255)
     return 255;
@@ -53,12 +53,12 @@ ILubyte Pixel::B()
   return b;
 }
 
-ILint Pixel::Jasnosc()
+ILint Pixel::Jasnosc() const
 {
   return (3*R()+5*G()+2*B())/10;
 }
 
-ILint Pixel::BW()
+ILint Pixel::BW() const
 {
   return (R()+G()+B())/3;
 }
@@ -108,18 +108,26 @@ Pixel Pixel::operator-(const Pixel& p)
   return Pixel(r-p.r,g-p.g,b-p.b);
 }
 
-bool Pixel::operator>(const Pixel& p)
+bool operator>(const Pixel& p1, const Pixel& p2)
 {
-  if(std::abs(3*r+5*g+2*b)>std::abs(3*p.r+5*p.g+2*p.b))
-  return true;
-return false;
+  if(p1.Jasnosc()>p2.Jasnosc())
+    return true;
+  return false;
 }
 
-bool Pixel::operator<(const Pixel& p)
+bool operator<=(const Pixel& p1, const Pixel& p2)
 {
- if(std::abs(3*r+5*g+2*b)<std::abs(3*p.r+5*p.g+2*p.b))
-  return true;
-return false;
+  return !(p1>p2);
+}
+
+bool operator<(const Pixel& p1, const Pixel& p2)
+{
+  return p2>p1;
+}
+
+bool operator>=(const Pixel& p1, const Pixel& p2)
+{
+  return !(p1<p2);
 }
 
 std::ostream& operator<<(std::ostream& out,const Pixel& p)
@@ -149,5 +157,22 @@ Pixel& Pixel::operator+=(const double f)
   r+=int(f);
   g+=int(f);
   b+=int(f);
+  return *this;
+}
+
+
+Pixel& Pixel::operator-=(const Pixel& p)
+{
+  r-=p.r;
+  g-=p.g;
+  b-=p.b;
+  return *this;
+}
+
+Pixel& Pixel::operator-=(const double f)
+{
+  r-=int(f);
+  g-=int(f);
+  b-=int(f);
   return *this;
 }

@@ -21,13 +21,23 @@ int main(int argc,char** argv)
 
   Plotno obrazek(plik.c_str());
   
-  if(argc==3)
-	  plik=argv[2];
-  else
-    plik.insert(plik.find_last_of("."),"_");
+  string prewitt=plik;
+  string kierunkowy=plik;
+  string lindeberg=plik;
+  
+  prewitt.insert(plik.find_last_of("."),"_prewitt");
+  kierunkowy.insert(plik.find_last_of("."),"_filtrkierunkowy");
+  lindeberg.insert(plik.find_last_of("."),"_lindeberg");
 
-  obrazek.Lindeberg().Zapisz(plik.c_str());
-  //obrazek.Rozmyj().Prewitt().Zapisz(plik.c_str());
+  cout<<"Prewitt"<<endl;
+  obrazek.Rozmyj(1).Prewitt().Zapisz(prewitt.c_str());
+
+  cout<<"Filtr kierunkowy"<<endl;
+  obrazek.Filtruj().Zapisz(kierunkowy.c_str());
+
+  cout<<"Lindeberg"<<endl;
+  obrazek.Lindeberg().Zapisz(lindeberg.c_str());
+
   ilShutDown();
   return 0;
 }

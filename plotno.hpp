@@ -38,6 +38,9 @@ public:
   Plotno Filtruj();
   Plotno Hough(Plotno* ak=0);
   Plotno Lindeberg();
+  
+  Plotno operator+(const Plotno& p);
+  Plotno operator-(const Plotno& p);
 
   friend std::ostream& operator<<(std::ostream& out, const Plotno& p);
   friend class Maska;

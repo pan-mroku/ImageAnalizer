@@ -159,51 +159,34 @@ Plotno Plotno::Rozmyj(ILuint _ile_razy)
 
 Plotno Plotno::Filtruj()
 {
-  return *this; //@FIXME: przerobić na maski
-  /*  ILbyte test[4][9]={
-    {0,0,0,1,2,1,0,0,0}, //0 "-"
-    {0,0,1,0,2,0,1,0,0}, //45 "\"
-    {0,1,0,0,2,0,0,1,0}, //90 "|"
-    {1,0,0,0,2,0,0,0,1} //135 "/"
-  };
+  Maska t[4];
+  t[0]= MaskaKrawedz0();
+  t[1]=MaskaKrawedz45();
+  t[2]=MaskaKrawedz90();
+  t[3]=MaskaKrawedz135();
+
+  Maska m[4]={Maska0(), Maska45(), Maska90(), Maska135()};
+
   Pixel wynik[4]={0,0,0,0};
 
-  ILbyte maska[4][9]={
-    {1,2,1,0,0,0,-1,-2,-1}, //0 "-"
-    {2,1,0,1,0,-1,0,-1,-2}, //45 "\"
-    {-1,0,1,-2,0,-2,-1,0,1}, //90 "|"
-    {0,1,2,-1,0,1,-2,-1,0} //135 "/"
-  };
+  Plotno bw=Rozmyj(1).BW();
+  Plotno nowe(szerokosc,wysokosc);
 
-  Plotno nowe(*this);
-
-    for(ILuint i=1;i<wysokosc-1;i++)
-    for(ILuint j=1;j<szerokosc-1;j++)
+  for(ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
       {
-        for(ILuint p=0;p<4;p++)
-          wynik[p]=0;
-
-        for(ILuint t=0;t<4;t++)
-          for(ILuint mi=0;mi<3;mi++)
-            for(ILuint mj=0;mj<3;mj++)
-              wynik[t]+=obraz[(i-1+mi)*szerokosc+j-1+mj]*test[t][mi*3+mj]/2;
+        for(ILuint i=0;i<4;i++)
+          wynik[i]=t[i].Splot(bw,x,y);
 
         ILuint kierunek=0;
-        for(ILuint a=0;a<4;a++)
-          if(wynik[a]>wynik[kierunek])
-            kierunek=a;
+        for(ILuint i=1;i<4;i++)
+          if(wynik[i]>wynik[kierunek])
+            kierunek=i;
 
-        Pixel tmp=0;
-
-        for(ILuint mi=0;mi<3;mi++)
-          for(ILuint mj=0;mj<3;mj++)
-            tmp+=obraz[(i-1+mi)*szerokosc+j-1+mj]*maska[kierunek][mi*3+mj]/2;
-
-        nowe[i*szerokosc+j]=tmp.BW();
+        nowe[y*szerokosc+x]=m[kierunek].Splot(bw,x,y);
       }
-  cerr<<"tu"<<endl;
 	
-  return nowe;*/
+  return nowe;
 }
 
 Plotno Plotno::Hough(Plotno* ak)
@@ -282,6 +265,9 @@ Plotno Plotno::Hough(Plotno* ak)
 
 Plotno Plotno::Lindeberg()
 {
+  MaskaGauss gauss(5);
+  //gauss.T(64);
+
   MaskaX mx;
   MaskaY my;
 
@@ -294,8 +280,8 @@ Plotno Plotno::Lindeberg()
   MaskaXYY mxyy;
   MaskaYYY myyy;
 
-  Plotno rozmycie=BW().Rozmyj(1);
-
+  Plotno rozmycie=BW().Splot(gauss);
+  //      return rozmycie;
   Plotno wynik(szerokosc,wysokosc);
   
   for(ILuint x=0;x<szerokosc;x++)
@@ -320,6 +306,26 @@ Plotno Plotno::Lindeberg()
           if((Lx*Lx*Lx*Lxxx+3*Lx*Lx*Ly*Lxxy+3*Lx*Ly*Ly*Lxyy+Ly*Ly*Ly*Lyyy)<0)
             wynik.obraz[y*szerokosc+x]=255;
       }
+  return wynik;
+}
+
+Plotno Plotno::operator+(const Plotno& p)
+{
+  Plotno wynik(*this);
+  for(ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      //wynik[y*szerokosc+x]=(wynik[y*szerokosc+x]+p[y*szerokosc+x])/double(2);
+      wynik[y*szerokosc+x]+=p[y*szerokosc+x];
+  return wynik;
+}
+
+Plotno Plotno::operator-(const Plotno& p)
+{
+  Plotno wynik(*this);
+  for(ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      //wynik[y*szerokosc+x]=(wynik[y*szerokosc+x]-p[y*szerokosc+x])/double(2);
+      wynik[y*szerokosc+x]-=p[y*szerokosc+x];
   return wynik;
 }
 

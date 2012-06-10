@@ -115,3 +115,75 @@ MaskaYYY::MaskaYYY():Maska(1,5)
   dzielnik=2;
 }
 
+Maska0::Maska0():Maska(3,3)
+{
+  double m[]= {1,2,1,0,0,0,-1,-2,-1};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
+Maska45::Maska45():Maska(3,3)
+{
+  double m[]={2,1,0,1,0,-1,0,-1,-2};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
+Maska90::Maska90():Maska(3,3)
+{
+  double m[]={-1,0,1,-2,0,-2,-1,0,1};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
+Maska135::Maska135():Maska(3,3)
+{
+  double m[]={0,1,2,-1,0,1,-2,-1,0};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
+MaskaKrawedz0::MaskaKrawedz0():Maska(3,1)
+{
+  double m[]={1,2,1};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
+MaskaKrawedz45::MaskaKrawedz45():Maska(3,3)
+{
+  double m[]={0,0,1,0,2,0,1,0,0};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
+MaskaKrawedz90::MaskaKrawedz90():Maska(1,3)
+{
+  double m[]={1,2,1};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
+MaskaKrawedz135::MaskaKrawedz135():Maska(3,3)
+{
+  double m[]={1,0,0,0,2,0,0,0,1};
+  for (ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
+      maska[x][y]=m[y*szerokosc+x];
+  dzielnik=2;
+}
+
