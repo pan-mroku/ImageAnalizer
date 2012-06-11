@@ -192,10 +192,7 @@ Plotno Plotno::Hough(Plotno* ak)
   //Maksymalny r to przekątna obrazu
   ILuint R=floor(sqrt((double)(szerokosc*szerokosc+wysokosc*wysokosc)));
 
-  ILuint* akumulator=new ILuint[270*R];
-  //czyścimy akumulator
-  for(ILuint i=0;i<270*R;i++)
-    akumulator[i]=0;
+  Plotno akumulator(270,R);
 
   //liczymy akumulator dla każdego piksla
   for(ILuint x=0;x<szerokosc;x++)
@@ -208,7 +205,7 @@ Plotno Plotno::Hough(Plotno* ak)
         for(ILint fi=-90;fi<180;fi++)
           {
             double fi_f=fi;
-            double r=x*cos(fi_f*PI/180)+y*sin(fi_f*PI/180);
+            double r=double(x)*cos(fi_f*PI/180)+double(y)*sin(fi_f*PI/180);
 
             //jeśli r wychodzi ujemne, to prostą będzie musiał złapać inny kąt
             if(r<0)
@@ -218,49 +215,72 @@ Plotno Plotno::Hough(Plotno* ak)
           }
       }
 
+  //rozmywamy maskę. Linie powstaną trochę grubsze, ale stracimy nieco przekłamań
+  akumulator=akumulator.Rozmyj();
+
   Plotno nowe(szerokosc,wysokosc);
+  //chcemy by obrazek był biały
   for(ILuint i=0;i<szerokosc*wysokosc;i++)
     nowe[i]=255;
 
-  //szukamy maksimum
-  ILuint fi=0,r=0;
-  for(ILuint i=0; i<270;i++)
-    for(ILuint j=0;j<R;j++)
-      if(akumulator[fi+270*r]<akumulator[i+270*j])
-        {
-          fi=i;
-          r=j;
-        }
-  cerr<<akumulator[fi+270*r]<<endl;
-  //rysujemy prostą
-  for(ILuint y=0;y<wysokosc;y++)
-    for(ILuint x=0;x<szerokosc;x++)
-      {
-        double fi_f=fi;
-        fi_f-=90; //nie możemy od razu odjąć od fi, bo się unsigned chachmęci
-        double r_=x*cos(fi_f*PI/180)+y*sin(fi_f*PI/180);
+  double pierwszeMaksimum=0,maksimum=1;
+  while(true)
+    {
+      //szukamy maksimum
+      ILuint fi=0,r=0;
+      for(ILuint i=0; i<270;i++)
+        for(ILuint j=0;j<R;j++)
+          if(akumulator[fi+270*r]<akumulator[i+270*j])
+            {
+              fi=i;
+              r=j;
+            }
+      maksimum=akumulator[fi+270*r];
+      
+      if(pierwszeMaksimum==0)
+        pierwszeMaksimum=maksimum;
 
+      if(pierwszeMaksimum/maksimum>4 || maksimum==0)break;
 
-        if(r_<0)        //jak wyżej
-          continue;
+      //rysujemy prostą
+      for(ILuint y=0;y<wysokosc;y++)
+        for(ILuint x=0;x<szerokosc;x++)
+          {
+            double fi_f=fi;
+            fi_f-=90; //nie możemy od razu odjąć od fi, bo się unsigned chachmęci
+            double r_=double(x)*cos(fi_f*PI/180)+double(y)*sin(fi_f*PI/180);
 
-        //jeśli r się zgadza to zaznaczamy prostą
-        if(floor(r_)==r)
-            nowe[x+y*szerokosc]=0;
-      }
+            if(r_<0)        //jak wyżej
+              continue;
+
+            //jeśli r się zgadza to zaznaczamy prostą
+            if(floor(r_)==r)
+              {
+                nowe[x+y*szerokosc]=0;
+
+                //usuwamy z akumulatora głosy dotyczące tego piksla
+                for(double fi_d=-90;fi_d<180;fi_d++)
+                  {
+                    double r_d=x*cos(fi_d*PI/180)+y*sin(fi_d*PI/180);
+
+                    //jeśli r wychodzi ujemne, to prostą będzie musiał złapać inny kąt
+                    if(r_d<0)
+                      continue;
+
+                    if(akumulator[ILint(fi_d)+90+270*ILuint(r_d)].r>0)
+                      akumulator[ILint(fi_d)+90+270*ILuint(r_d)]-=1;
+                  }
+              
+              }
+          }
+    }
   
-  //Jeśli chcemy zapisać gdzieś ak (podano parametr) to trzeba przerobić akumulator na piksle
+  //jeśli chcemy zapisać akumulator
   if(ak)
     {
-      delete [] ak->obraz;
-      ak->obraz=new Pixel[270*R];
-      for(ILuint i=0;i<R*270;i++)
-        ak->obraz[i]=akumulator[i];
-      ak->wysokosc=R;
-      ak->szerokosc=270;
+      *ak=akumulator;
     }
 
-  delete [] akumulator;
   return nowe;
 }
 

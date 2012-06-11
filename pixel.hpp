@@ -6,6 +6,8 @@
 #include<cmath>
 #include "utils.hpp"
 
+class Plotno;
+
 class Pixel
 {
 private:
@@ -49,6 +51,8 @@ public:
   Pixel& operator+=(const double f);
   Pixel& operator-=(const Pixel& p);
   Pixel& operator-=(const double f);
+
+  friend class Plotno;
 };
 
 #endif
