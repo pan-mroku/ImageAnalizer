@@ -125,9 +125,7 @@ Plotno Plotno::Splot(const Maska& maska)
   
   for(ILuint i=0;i<wysokosc;i++)
     for(ILuint j=0;j<szerokosc;j++)
-      {
-        nowe[i*szerokosc+j]=maska.Splot(*this,j,i);
-      }
+      nowe[i*szerokosc+j]=maska.Splot(*this,j,i);
 
   return nowe;
 }
@@ -191,31 +189,40 @@ Plotno Plotno::Filtruj()
 
 Plotno Plotno::Hough(Plotno* ak)
 {
+  //Maksymalny r to przekątna obrazu
   ILuint R=floor(sqrt((double)(szerokosc*szerokosc+wysokosc*wysokosc)));
-  ILuint* akumulator=new ILuint[270*R];
 
+  ILuint* akumulator=new ILuint[270*R];
+  //czyścimy akumulator
   for(ILuint i=0;i<270*R;i++)
     akumulator[i]=0;
 
-  for(ILuint j=0;j<wysokosc;j++)
-    for(ILuint i=0;i<szerokosc;i++)
+  //liczymy akumulator dla każdego piksla
+  for(ILuint x=0;x<szerokosc;x++)
+    for(ILuint y=0;y<wysokosc;y++)
       {
-        if(obraz[i+j*szerokosc].BW()>0)continue;
+        //pod uwagę bierzemy tylko czarne piksle
+        if(obraz[x+y*szerokosc].BW()>0)continue;
+
+        //zapisywanie akumulatora
         for(ILint fi=-90;fi<180;fi++)
           {
             double fi_f=fi;
-            double r=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
+            double r=x*cos(fi_f*PI/180)+y*sin(fi_f*PI/180);
+
+            //jeśli r wychodzi ujemne, to prostą będzie musiał złapać inny kąt
             if(r<0)
-              {
-                if(fi<45)
-                  fi_f+=180;
-                else
-                  fi_f-=180;
-                r=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
-              }
-            akumulator[fi+90+270*(ILuint)r]+=1;
+              continue;
+
+            akumulator[fi+90+270*ILuint(r)]+=1;
           }
       }
+
+  Plotno nowe(szerokosc,wysokosc);
+  for(ILuint i=0;i<szerokosc*wysokosc;i++)
+    nowe[i]=255;
+
+  //szukamy maksimum
   ILuint fi=0,r=0;
   for(ILuint i=0; i<270;i++)
     for(ILuint j=0;j<R;j++)
@@ -224,32 +231,25 @@ Plotno Plotno::Hough(Plotno* ak)
           fi=i;
           r=j;
         }
-  Plotno nowe=*this;
-  for(ILuint i=0;i<szerokosc*wysokosc;i++)
-    {
-      nowe[i]=255;
-    }
-
-  for(ILuint j=0;j<wysokosc;j++)
-    for(ILuint i=0;i<szerokosc;i++)
+  cerr<<akumulator[fi+270*r]<<endl;
+  //rysujemy prostą
+  for(ILuint y=0;y<wysokosc;y++)
+    for(ILuint x=0;x<szerokosc;x++)
       {
-        double fi_f=fi-90;
-        ILint r_=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
-        if(r_<0)
-          {
-            if(fi_f<45)
-              fi_f+=180;
-            else
-              fi_f-=180;
-            r_=i*cos(fi_f*PI/180)+j*sin(fi_f*PI/180);
-          }
-        if(floor((float)r_)==r)
-          {
+        double fi_f=fi;
+        fi_f-=90; //nie możemy od razu odjąć od fi, bo się unsigned chachmęci
+        double r_=x*cos(fi_f*PI/180)+y*sin(fi_f*PI/180);
 
-            nowe[i+j*szerokosc]=0;
-          }
+
+        if(r_<0)        //jak wyżej
+          continue;
+
+        //jeśli r się zgadza to zaznaczamy prostą
+        if(floor(r_)==r)
+            nowe[x+y*szerokosc]=0;
       }
   
+  //Jeśli chcemy zapisać gdzieś ak (podano parametr) to trzeba przerobić akumulator na piksle
   if(ak)
     {
       delete [] ak->obraz;
@@ -259,6 +259,7 @@ Plotno Plotno::Hough(Plotno* ak)
       ak->wysokosc=R;
       ak->szerokosc=270;
     }
+
   delete [] akumulator;
   return nowe;
 }
